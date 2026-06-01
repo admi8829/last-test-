@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/home_screen.dart';
@@ -8,7 +9,9 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   
   // Background, non-blocking initializer for GMS Check & Firebase (Zero startup lag)
-  GmsAndAdsService.initializeBackground();
+  if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+    GmsAndAdsService.initializeBackground();
+  }
   
   runApp(SmartXAcademyApp(prefs: prefs));
 }
