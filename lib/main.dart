@@ -3,16 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/home_screen.dart';
 import 'services/gms_and_ads_service.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final prefs = await SharedPreferences.getInstance();
   
-  // Background, non-blocking initializer for GMS Check & Firebase (Zero startup lag)
+  // Background, non-blocking initializer for GMS Check, Firebase & AdMob
   if (!Platform.environment.containsKey('FLUTTER_TEST')) {
-    GmsAndAdsService.initializeBackground();
+    await GmsAndAdsService.initializeAll();
+    await NotificationService().initialize();
   }
-  
+
+  final prefs = await SharedPreferences.getInstance();
   runApp(SmartXAcademyApp(prefs: prefs));
 }
 
@@ -54,6 +56,7 @@ class _SmartXAcademyAppState extends State<SmartXAcademyApp> {
     return MaterialApp(
       title: 'Smart X Academy',
       debugShowCheckedModeBanner: false,
+      navigatorKey: NotificationService().navigatorKey,
       
       // Sophisticated Light & Dark Themes matching the user's sleek palette
       theme: ThemeData(

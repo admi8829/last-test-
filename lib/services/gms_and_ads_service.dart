@@ -6,6 +6,16 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:google_api_availability/google_api_availability.dart';
 
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp(options: GmsAndAdsService.currentFirebaseOptions);
+  if (kDebugMode) {
+    print("Handling a background message: ${message.messageId}");
+  }
+}
+
 class GmsAndAdsService {
   static bool isGmsAvailable = false;
   static bool isFirebaseInitialized = false;
@@ -15,79 +25,62 @@ class GmsAndAdsService {
   static InterstitialAd? _interstitialAd;
   static bool isInterstitialAdLoaded = false;
 
-  /// Starts asynchronous background initialization of GMS, Firebase and AdMob.
-  /// This ensures absolutely zero startup lag or UI freezes.
-  static void initializeBackground() {
-    statusMessage = "Starting system checklist...";
-    Future.microtask(() async {
-      try {
-        await initializeServices();
-      } catch (e) {
-        statusMessage = "Encountered initial error: $e";
-        if (kDebugMode) {
-          print("Error in background helper initialization: $e");
-        }
-      }
-    });
+  /// Private helper to get current firebase options
+  static FirebaseOptions get currentFirebaseOptions {
+    if (Platform.isIOS) {
+      return const FirebaseOptions(
+        apiKey: 'AIzaSyBbDTLG9q0yCzXA-vzffB2hwSRoDeaXymA',
+        appId: '1:629000096457:ios:ca9e524da1729a4afedb18',
+        messagingSenderId: '629000096457',
+        projectId: 'smart-x-academy',
+        storageBucket: 'smart-x-academy.firebasestorage.app',
+        iosBundleId: 'com.smartxacademy.app',
+      );
+    }
+    return const FirebaseOptions(
+      apiKey: 'AIzaSyBbDTLG9q0yCzXA-vzffB2hwSRoDeaXymA',
+      appId: '1:629000096457:android:ca9e524da1729a4afedb18',
+      messagingSenderId: '629000096457',
+      projectId: 'smart-x-academy',
+      storageBucket: 'smart-x-academy.firebasestorage.app',
+    );
   }
 
-  /// Check GMS, initialize Firebase & AdMob safely
-  static Future<void> initializeServices() async {
-    // 1. Perform GMS check (safely handling errors)
+  /// Initialize all requested services explicitly
+  static Future<void> initializeAll() async {
+    // 1. Initial GMS check
     isGmsAvailable = await _checkGmsAvailability();
-    
     if (!isGmsAvailable) {
       statusMessage = "Non-GMS Device detected. Safe Mode active.";
-      if (kDebugMode) {
-        print("GMS/Google Play Services are missing or unavailable. Skipping Firebase and AdMob initialization cleanly.");
-      }
       return;
     }
 
-    statusMessage = "GMS Verified. Initializing services...";
-    if (kDebugMode) {
-      print("GMS/Google Play Services are available. Proceeding with Firebase and AdMob initialization.");
+    // 2. Initialize Firebase
+    try {
+      if (Firebase.apps.isEmpty) {
+        await Firebase.initializeApp(options: currentFirebaseOptions);
+      }
+      isFirebaseInitialized = true;
+      
+      // Background message handler is explicitly set in initializeAll in NotificationService or main
+      // But keeping it here for core stability if called independently
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    } catch (e) {
+      if (kDebugMode) print("Firebase Error: $e");
+      statusMessage = "Firebase error: $e";
     }
 
-      // 2. Initialize Firebase Core
-      try {
-        if (Firebase.apps.isEmpty) {
-          await Firebase.initializeApp(
-            options: _currentFirebaseOptions,
-          );
-        }
-        isFirebaseInitialized = true;
-        if (kDebugMode) {
-          print("Firebase successfully initialized.");
-        }
-        
-        // Request and setup Firebase Push Notifications
-        await _setupNotifications();
-      } catch (e) {
-        statusMessage = "Firebase error: $e";
-        if (kDebugMode) {
-          print("Failed to initialize Firebase: $e");
-        }
-      }
-
-      // 3. Initialize Google Mobile Ads (AdMob)
-      try {
-        await MobileAds.instance.initialize();
-        isAdMobInitialized = true;
-        if (kDebugMode) {
-          print("AdMob successfully initialized.");
-        }
-        statusMessage = "All systems operational (GMS Active).";
-        
-        // Load an initial Interstitial Ad
-        loadInterstitialAd();
-      } catch (e) {
-        statusMessage = "AdMob error: $e";
-        if (kDebugMode) {
-          print("Failed to initialize AdMob: $e");
-        }
-      }
+    // 3. Initialize AdMob
+    try {
+      await MobileAds.instance.initialize();
+      isAdMobInitialized = true;
+      statusMessage = "All systems operational (GMS Active).";
+      loadInterstitialAd();
+    } catch (e) {
+      if (kDebugMode) print("AdMob Error: $e");
+      statusMessage = "AdMob error: $e";
     }
+  }
 
   /// Preload an official Google AdMob test interstitial ad
   static void loadInterstitialAd() {
@@ -172,69 +165,6 @@ class GmsAndAdsService {
       }
       return false;
     }
-  }
-
-  /// Set up push notifications
-  static Future<void> _setupNotifications() async {
-    try {
-      FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-      // Request permissions (especially useful for iOS & Android 13+)
-      NotificationSettings settings = await messaging.requestPermission(
-        alert: true,
-        announcement: false,
-        badge: true,
-        carPlay: false,
-        criticalAlert: false,
-        provisional: false,
-        sound: true,
-      );
-
-      if (kDebugMode) {
-        print('User notification permission status: ${settings.authorizationStatus}');
-      }
-
-      // Get FCM token
-      fcmToken = await messaging.getToken();
-      if (kDebugMode) {
-        print("FCM Token: $fcmToken");
-      }
-
-      // Handle background or foreground messages
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        if (kDebugMode) {
-          print('FCM Foreground: Message data: ${message.data}');
-        }
-        if (message.notification != null && kDebugMode) {
-          print('FCM Title: ${message.notification?.title}');
-        }
-      });
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error during notifications setup: $e");
-      }
-    }
-  }
-
-  /// Return current platform appropriate firebase options
-  static FirebaseOptions get _currentFirebaseOptions {
-    if (Platform.isIOS) {
-      return const FirebaseOptions(
-        apiKey: 'AIzaSyBbDTLG9q0yCzXA-vzffB2hwSRoDeaXymA',
-        appId: '1:629000096457:ios:ca9e524da1729a4afedb18',
-        messagingSenderId: '629000096457',
-        projectId: 'smart-x-academy',
-        storageBucket: 'smart-x-academy.firebasestorage.app',
-        iosBundleId: 'com.smartxacademy.app',
-      );
-    }
-    return const FirebaseOptions(
-      apiKey: 'AIzaSyBbDTLG9q0yCzXA-vzffB2hwSRoDeaXymA',
-      appId: '1:629000096457:android:ca9e524da1729a4afedb18',
-      messagingSenderId: '629000096457',
-      projectId: 'smart-x-academy',
-      storageBucket: 'smart-x-academy.firebasestorage.app',
-    );
   }
 }
 
