@@ -7,7 +7,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   
-  // Background, non-blocking initializer for GMS Check, Firebase & AdMob (Zero startup lag)
+  // Background, non-blocking initializer for GMS Check & Firebase (Zero startup lag)
   GmsAndAdsService.initializeBackground();
   
   runApp(SmartXAcademyApp(prefs: prefs));
