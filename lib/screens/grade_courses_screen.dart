@@ -88,38 +88,34 @@ class _GradeCoursesScreenState extends State<GradeCoursesScreen> {
               crossAxisCount: 2,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              childAspectRatio: 0.9,
+              childAspectRatio: 0.88,
               children: [
                 _buildSubjectCard(
                   "Physics",
                   "Matter & Energy",
-                  Icons.science,
-                  const Color(0xFFE0F2FE),
-                  const Color(0xFF1E88E5),
+                  Icons.blur_on_rounded,
+                  const Color(0xFF2196F3),
                   isLight,
                 ),
                 _buildSubjectCard(
                   "Chemistry",
                   "Elements & Compounds",
-                  Icons.biotech,
-                  const Color(0xFFE0F8F5),
-                  const Color(0xFF0D9488),
+                  Icons.biotech_rounded,
+                  const Color(0xFF10B981),
                   isLight,
                 ),
                 _buildSubjectCard(
                   "Mathematics",
-                  "Algebra & Geometry",
-                  Icons.calculate,
-                  const Color(0xFFF3E8FF),
+                  "Algabra & Geometry",
+                  Icons.architecture_rounded,
                   const Color(0xFF9333EA),
                   isLight,
                 ),
                 _buildSubjectCard(
                   "History",
                   "World Civilizations",
-                  Icons.history_edu,
-                  const Color(0xFFFEF3C7),
-                  const Color(0xFFD97706),
+                  Icons.history_edu_rounded,
+                  const Color(0xFFF59E0B),
                   isLight,
                 ),
               ],
@@ -140,37 +136,219 @@ class _GradeCoursesScreenState extends State<GradeCoursesScreen> {
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
           ),
         ],
       ),
       child: Column(
         children: [
-          // Mock Illustration/Image Space
+          // Premium Illustration/Image Space
           Container(
-            height: 140,
+            height: 160,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: isLight ? const Color(0xFFF1F5F9) : const Color(0xFF334155),
-              borderRadius: BorderRadius.circular(20),
+              color: isLight ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A),
+              borderRadius: BorderRadius.circular(24),
             ),
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Icon(
-                  Icons.auto_awesome_mosaic,
-                  size: 80,
-                  color: isLight ? Colors.blue.withOpacity(0.2) : Colors.white10,
+                // Ground/Desk shelf line
+                Positioned(
+                  bottom: 12,
+                  left: 20,
+                  right: 20,
+                  child: Container(
+                    height: 2,
+                    decoration: BoxDecoration(
+                      color: isLight ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+                      borderRadius: BorderRadius.circular(1),
+                    ),
+                  ),
                 ),
+                
+                // Elements Row representing the illustration
+                Positioned(
+                  bottom: 14,
+                  child: SizedBox(
+                    width: 300,
+                    height: 140,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        // 1. Globe on the left
+                        Positioned(
+                          left: 10,
+                          bottom: 10,
+                          child: Icon(
+                            Icons.public_rounded,
+                            size: 54,
+                            color: const Color(0xFF42A5F5).withOpacity(0.85),
+                          ),
+                        ),
+                        Positioned(
+                          left: 22,
+                          bottom: 5,
+                          child: Container(
+                            width: 30,
+                            height: 15,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF90A4AE),
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                            ),
+                          ),
+                        ),
+
+                        // 2. Flask/Science behind books
+                        Positioned(
+                          left: 100,
+                          bottom: 30,
+                          child: Icon(
+                            Icons.science_outlined,
+                            size: 44,
+                            color: const Color(0xFF26A69A).withOpacity(0.6),
+                          ),
+                        ),
+                        
+                        // 3. Stack of colorful books
+                        Positioned(
+                          left: 70,
+                          bottom: 8,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Top book
+                              Container(
+                                width: 90,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF26C6DA),
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                              ),
+                              const SizedBox(height: 1.5),
+                              // Second book
+                              Container(
+                                width: 100,
+                                height: 14,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF81C784),
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                              ),
+                              const SizedBox(height: 1.5),
+                              // Third book
+                              Container(
+                                width: 110,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFF8A65),
+                                  borderRadius: BorderRadius.circular(3.5),
+                                ),
+                              ),
+                              const SizedBox(height: 1.5),
+                              // Bottom book
+                              Container(
+                                width: 115,
+                                height: 18,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF5C6BC0),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // 4. Smartphone standing on the right
+                        Positioned(
+                          right: 25,
+                          bottom: 5,
+                          child: Container(
+                            width: 58,
+                            height: 94,
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF263238),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: const Color(0xFFCFD8DC), width: 1.5),
+                            ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  // Brand Logo/Acronynm inside phone
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.auto_awesome,
+                                        size: 14,
+                                        color: Color(0xFF1E88E5),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        "Smart X",
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 6,
+                                          fontWeight: FontWeight.w900,
+                                          color: const Color(0xFF0F172A),
+                                        ),
+                                      ),
+                                      Text(
+                                        "Academy",
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 4,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color(0xFF64748B),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  // Top camera notch
+                                  Positioned(
+                                    top: 1,
+                                    child: Container(
+                                      width: 14,
+                                      height: 3,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF263238),
+                                        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(2)),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                
+                // Centered Play Button overlay (matches the translucent design)
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.2),
+                    color: const Color(0xFF64748B).withOpacity(0.4),
                     shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
                   ),
-                  child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 40),
+                  child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 36),
                 ),
               ],
             ),
@@ -202,12 +380,11 @@ class _GradeCoursesScreenState extends State<GradeCoursesScreen> {
     String title,
     String subtitle,
     IconData icon,
-    Color bgColor,
-    Color iconColor,
+    Color accentColor,
     bool isLight,
   ) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: isLight ? Colors.white : const Color(0xFF1E293B),
         borderRadius: BorderRadius.circular(24),
@@ -220,18 +397,18 @@ class _GradeCoursesScreenState extends State<GradeCoursesScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isLight ? bgColor : iconColor.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
+              color: accentColor,
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: iconColor, size: 24),
+            child: Icon(icon, color: Colors.white, size: 24),
           ),
           const Spacer(),
           Text(
             title,
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 17,
+              fontSize: 18,
               fontWeight: FontWeight.w800,
               color: isLight ? const Color(0xFF0F172A) : Colors.white,
             ),
@@ -241,7 +418,7 @@ class _GradeCoursesScreenState extends State<GradeCoursesScreen> {
             subtitle,
             style: GoogleFonts.plusJakartaSans(
               fontSize: 13,
-              color: const Color(0xFF94A3B8),
+              color: const Color(0xFF64748B),
               fontWeight: FontWeight.w600,
             ),
           ),

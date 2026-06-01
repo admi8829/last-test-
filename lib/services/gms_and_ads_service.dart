@@ -22,7 +22,7 @@ class GmsAndAdsService {
 
   /// Private helper to get current firebase options
   static FirebaseOptions get currentFirebaseOptions {
-    if (Platform.isIOS) {
+    if (!kIsWeb && Platform.isIOS) {
       return const FirebaseOptions(
         apiKey: 'AIzaSyBbDTLG9q0yCzXA-vzffB2hwSRoDeaXymA',
         appId: '1:629000096457:ios:ca9e524da1729a4afedb18',
@@ -43,6 +43,11 @@ class GmsAndAdsService {
 
   /// Initialize all requested services explicitly
   static Future<void> initializeAll() async {
+    if (kIsWeb) {
+      statusMessage = "Web platform active. Safe Mode enabled.";
+      isGmsAvailable = false;
+      return;
+    }
     // 1. Initial GMS check
     isGmsAvailable = await _checkGmsAvailability();
     if (!isGmsAvailable) {
@@ -142,6 +147,7 @@ class GmsAndAdsService {
 
   /// Private helper to check GMS availability
   static Future<bool> _checkGmsAvailability() async {
+    if (kIsWeb) return false;
     if (!Platform.isAndroid) {
       // Non-Android platforms are not constrained by Google Play Services
       return true;
@@ -183,7 +189,7 @@ class _SmartXAdsBannerWidgetState extends State<SmartXAdsBannerWidget> {
   }
 
   void _loadAd() {
-    if (Platform.environment.containsKey('FLUTTER_TEST')) {
+    if (kIsWeb || Platform.environment.containsKey('FLUTTER_TEST')) {
       setState(() {
         _failed = true;
       });

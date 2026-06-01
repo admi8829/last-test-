@@ -34,6 +34,7 @@ class _CustomBannerAdState extends State<CustomBannerAd> {
 
   /// Get the correct ad unit ID based on platform
   String _getAdUnitId() {
+    if (kIsWeb) return '';
     if (widget.adUnitId != null) return widget.adUnitId!;
     
     // Default to Google Test IDs if none provided
@@ -47,7 +48,7 @@ class _CustomBannerAdState extends State<CustomBannerAd> {
 
   void _initBannerAd() {
     // Safety check for test environments or unsupported platforms
-    if (Platform.environment.containsKey('FLUTTER_TEST')) return;
+    if (kIsWeb || Platform.environment.containsKey('FLUTTER_TEST')) return;
 
     _bannerAd = BannerAd(
       adUnitId: _getAdUnitId(),

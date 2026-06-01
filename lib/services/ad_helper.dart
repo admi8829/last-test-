@@ -5,6 +5,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdHelper {
   static String get bannerAdUnitId {
+    if (kIsWeb) return '';
     if (Platform.isAndroid) {
       return 'ca-app-pub-3940256099942544/6300978111';
     } else if (Platform.isIOS) {
@@ -14,6 +15,7 @@ class AdHelper {
   }
 
   static String get rewardedAdUnitId {
+    if (kIsWeb) return '';
     if (Platform.isAndroid) {
       return 'ca-app-pub-3940256099942544/5224354917';
     } else if (Platform.isIOS) {
@@ -82,7 +84,7 @@ class _SmartXBannerAdContainerState extends State<SmartXBannerAdContainer> {
   }
 
   void _loadAd() {
-    if (Platform.environment.containsKey('FLUTTER_TEST')) return;
+    if (kIsWeb || Platform.environment.containsKey('FLUTTER_TEST')) return;
     _bannerAd = BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,
       request: const AdRequest(),

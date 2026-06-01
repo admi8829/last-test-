@@ -1,4 +1,5 @@
 import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
@@ -31,8 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize only if not in testing environment
-    if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+    // Initialize only if not in testing environment and not on web
+    if (!kIsWeb && !Platform.environment.containsKey('FLUTTER_TEST')) {
       _ytController = YoutubePlayerController(
         initialVideoId: 'FRjnr4UAhNk',
         flags: const YoutubePlayerFlags(
@@ -537,7 +538,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(Platform.isIOS ? 12 : 16),
+                            borderRadius: BorderRadius.circular((!kIsWeb && Platform.isIOS) ? 12 : 16),
                           ),
                         ),
                         child: Text(
@@ -563,11 +564,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () {
         GmsAndAdsService.showInterstitialAd(() {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => GradeCoursesScreen(grade: grade),
-            ),
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Grade $grade courses coming soon!')),
           );
         });
       },

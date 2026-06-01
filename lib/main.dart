@@ -1,5 +1,5 @@
 import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/home_screen.dart';
@@ -9,20 +9,13 @@ import 'services/notification_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Non-blocking initialization for secondary services
-  Future<void> backgroundInit() async {
-    if (!Platform.environment.containsKey('FLUTTER_TEST')) {
-      try {
-        await GmsAndAdsService.initializeAll();
-        await NotificationService().initialize();
-      } catch (e) {
-        if (kDebugMode) print("Initialization Background Error: $e");
-      }
-    }
+  // Background, non-blocking initializer for GMS Check, Firebase & AdMob
+  if (kIsWeb) {
+    // Safe mode for web by default, no GMS/AdMob/FCM mobile setup required
+  } else if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+    await GmsAndAdsService.initializeAll();
+    await NotificationService().initialize();
   }
-
-  // Start background initialization
-  backgroundInit();
 
   final prefs = await SharedPreferences.getInstance();
   runApp(SmartXAcademyApp(prefs: prefs));
