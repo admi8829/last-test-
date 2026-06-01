@@ -17,8 +17,8 @@ void main() {
     await tester.pumpWidget(SmartXAcademyApp(prefs: prefs));
     await tester.pumpAndSettle(); // Wait for animations or initial loading
 
-    // Verify application starts on default HomeScreen with greeting text
-    expect(find.text('Hello Student!'), findsWidgets);
+    // Verify application starts on default HomeScreen with Title
+    expect(find.text('Smart X Academy'), findsWidgets);
     
     // Check that we render BottomNavigationBar
     expect(find.byType(BottomNavigationBar), findsOneWidget);

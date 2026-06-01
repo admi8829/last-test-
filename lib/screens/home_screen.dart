@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../services/gms_and_ads_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,29 +23,45 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  int _selectedGrade = 9; // Options: 9, 10, 11, 12
+  YoutubePlayerController? _ytController;
+
+  @override
+  void initState() {
+    super.initState();
+    _ytController = YoutubePlayerController(
+      initialVideoId: 'FRjnr4UAhNk',
+      flags: const YoutubePlayerFlags(
+        autoPlay: false,
+        mute: false,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ytController?.dispose();
+    super.dispose();
+  }
 
   // Dictionary for dynamic translation matching 'EN/አማርኛ'
   final Map<String, Map<String, String>> _localizedValues = {
     'en': {
       'title': 'Smart X Academy',
-      'greet_title': 'Hello Student!',
-      'greet_sub': 'Grade level selector active',
-      'explore_title': 'National Grade Syllabus',
+      'explore_title': 'Explore Your Grade',
+      'explore_sub': 'Select your grade to view courses.',
       'nav_home': 'Home',
       'nav_courses': 'Courses',
+      'nav_profile': 'Profile',
       'nav_settings': 'Settings',
-      'nav_about': 'About',
     },
     'am': {
       'title': 'ስማርት ኤክስ አካዳሚ',
-      'greet_title': 'ሰላም ተማሪ!',
-      'greet_sub': 'የክፍል ደረጃ መምረጫው ገባሪ ነው',
-      'explore_title': 'ብሔራዊ የክፍል ሥርዓተ ትምህርት',
+      'explore_title': 'የክፍል ደረጃዎን ይምረጡ',
+      'explore_sub': 'ኮርሶችን ለመመልከት የክፍል ደረጃዎን ይምረጡ።',
       'nav_home': 'መነሻ',
       'nav_courses': 'ኮርሶች',
+      'nav_profile': 'መገለጫ',
       'nav_settings': 'ማስተካከያዎች',
-      'nav_about': 'ስለ እኛ',
     }
   };
 
@@ -164,20 +181,51 @@ class _HomeScreenState extends State<HomeScreen> {
     bool isLight = !widget.isDarkMode;
 
     return Scaffold(
-      backgroundColor: isLight ? const Color(0xFFFDFEFE) : const Color(0xFF0F172A),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // 1. Mock status bar area matching the screenshot header to details
-            _buildMockStatusBar(isLight),
-
-            // 2. Main Tab router
-            Expanded(
-              child: _buildCurrentTab(isLight),
-            ),
-          ],
+      backgroundColor: isLight ? Colors.white : const Color(0xFF0F172A),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Icon(
+          Icons.menu_rounded,
+          color: isLight ? const Color(0xFF1E293B) : Colors.white,
         ),
+        title: Text(
+          _local('title'),
+          style: GoogleFonts.plusJakartaSans(
+            fontWeight: FontWeight.w800,
+            color: isLight ? const Color(0xFF0F172A) : Colors.white,
+            fontSize: 20,
+          ),
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(
+              widget.isDarkMode ? Icons.wb_sunny_rounded : Icons.nights_stay_rounded,
+              color: isLight ? const Color(0xFF1E293B) : Colors.white,
+            ),
+            onPressed: widget.onToggleTheme,
+          ),
+          TextButton.icon(
+            onPressed: widget.onToggleLanguage,
+            icon: Icon(
+              Icons.language_rounded,
+              size: 20,
+              color: isLight ? const Color(0xFF1E293B) : Colors.white,
+            ),
+            label: Text(
+              widget.languageCode == 'en' ? "EN/አማ" : "አማ/EN",
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 10,
+                color: isLight ? const Color(0xFF1E293B) : Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
+      body: _buildCurrentTab(isLight),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: isLight ? Colors.white : const Color(0xFF1E293B),
@@ -188,12 +236,6 @@ class _HomeScreenState extends State<HomeScreen> {
               offset: const Offset(0, -4),
             ),
           ],
-          border: Border(
-            top: BorderSide(
-              color: isLight ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
-              width: 1,
-            ),
-          ),
         ),
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
@@ -217,32 +259,20 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           items: [
             BottomNavigationBarItem(
-              icon: Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
-                child: Icon(_currentIndex == 0 ? Icons.home_filled : Icons.home_outlined),
-              ),
+              icon: Icon(_currentIndex == 0 ? Icons.home_rounded : Icons.home_outlined),
               label: _local('nav_home'),
             ),
             BottomNavigationBarItem(
-              icon: Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
-                child: Icon(_currentIndex == 1 ? Icons.menu_book_sharp : Icons.menu_book_outlined),
-              ),
+              icon: Icon(_currentIndex == 1 ? Icons.menu_book_rounded : Icons.menu_book_outlined),
               label: _local('nav_courses'),
             ),
             BottomNavigationBarItem(
-              icon: Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
-                child: Icon(_currentIndex == 2 ? Icons.settings : Icons.settings_outlined),
-              ),
-              label: _local('nav_settings'),
+              icon: Icon(_currentIndex == 2 ? Icons.person_rounded : Icons.person_outline),
+              label: _local('nav_profile'),
             ),
             BottomNavigationBarItem(
-              icon: Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
-                child: Icon(_currentIndex == 3 ? Icons.info : Icons.info_outline),
-              ),
-              label: _local('nav_about'),
+              icon: Icon(_currentIndex == 3 ? Icons.settings_rounded : Icons.settings_outlined),
+              label: _local('nav_settings'),
             ),
           ],
         ),
@@ -323,132 +353,235 @@ class _HomeScreenState extends State<HomeScreen> {
       case 1:
         return _buildCoursesScreen(isLight);
       case 2:
-        return _buildSettingsScreen(isLight);
+        return _buildProfileScreen(isLight);
       case 3:
-        return _buildAboutScreen(isLight);
+        return _buildSettingsScreen(isLight);
       default:
         return _buildHomeScreenContent(isLight);
     }
   }
 
   Widget _buildHomeScreenContent(bool isLight) {
-    final featured = _getFeaturedModule();
-
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(20.0, 16.0, 20.0, 24.0),
+      padding: const EdgeInsets.fromLTRB(20.0, 8.0, 20.0, 24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. Beautiful Header Greeting Row matching screenshot
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _local('greet_title'),
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 28.0,
-                        fontWeight: FontWeight.w800,
-                        color: isLight ? const Color(0xFF0F172A) : Colors.white,
-                        letterSpacing: -0.8,
-                      ),
-                    ),
-                    const SizedBox(height: 3.0),
-                    Text(
-                      _local('greet_sub'),
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF94A3B8),
-                      ),
-                    ),
-                  ],
+          // Video Tutorial Card
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: isLight ? Colors.white : const Color(0xFF1E293B),
+              borderRadius: BorderRadius.circular(24.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 16.0,
+                  offset: const Offset(0, 8),
                 ),
+              ],
+              border: Border.all(
+                color: isLight ? const Color(0xFFF1F5F9) : const Color(0xFF334155),
+                width: 1,
               ),
-              // LHS Student Avatar Matcher
-              _buildLargeProfileAvatar(isLight),
-            ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24.0)),
+                  child: YoutubePlayer(
+                    controller: _ytController!,
+                    showVideoProgressIndicator: true,
+                    progressIndicatorColor: const Color(0xFF1E88E5),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    "Watch tutorial: Getting started with the Smart X Academy App.",
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w600,
+                      color: isLight ? const Color(0xFF475569) : Colors.grey[400],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 32.0),
+
+          // Explore Your Grade Section
+          Text(
+            _local('explore_title'),
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 24.0,
+              fontWeight: FontWeight.w800,
+              color: isLight ? const Color(0xFF0F172A) : Colors.white,
+            ),
+          ),
+          const SizedBox(height: 4.0),
+          Text(
+            _local('explore_sub'),
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 16.0,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF94A3B8),
+            ),
           ),
 
           const SizedBox(height: 24.0),
 
-          // 2. Grade Selection horizontal chips matching G9, G10, G11, G12
-          _buildGradeSelectorChips(isLight),
-
-          const SizedBox(height: 26.0),
-
-          // 3. Featured Card (Interactive Module box matching screenshot)
-          _buildFeaturedInteractiveCard(isLight, featured),
-
-          const SizedBox(height: 28.0),
-
-          // 4. Section Syllabus Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // Grade Selection Grid
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            crossAxisSpacing: 16.0,
+            mainAxisSpacing: 16.0,
+            childAspectRatio: 0.9,
             children: [
-              Text(
-                _local('explore_title'),
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 17.5,
-                  fontWeight: FontWeight.w800,
-                  color: isLight ? const Color(0xFF0F172A) : Colors.white,
-                  letterSpacing: -0.4,
-                ),
-              ),
-              Text(
-                "G$_selectedGrade STATUS",
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF1E88E5), // Blue accent color
-                  letterSpacing: 0.5,
-                ),
-              ),
+              _buildGradeCard(9, Icons.library_books_rounded, "Begin your journey!", const Color(0xFFE0F2FE), const Color(0xFF0284C7), isLight),
+              _buildGradeCard(10, Icons.science_rounded, "Expand your knowledge!", const Color(0xFFE0F8F5), const Color(0xFF0D9488), isLight),
+              _buildGradeCard(11, Icons.calculate_rounded, "Prepare for excellence!", const Color(0xFFFEF3C7), const Color(0xFFD97706), isLight),
+              _buildGradeCard(12, Icons.school_rounded, "Achieve your goals!", const Color(0xFFF3E8FF), const Color(0xFF9333EA), isLight),
             ],
           ),
 
-          const SizedBox(height: 16.0),
-
-          // 5. Grid of Subjects (2-Column dynamic grid matching screen)
-          _buildSubjectGrid(isLight),
-
-          const SizedBox(height: 20.0),
+          const SizedBox(height: 12),
+          // Sponsor banner at bottom
+          const SmartXAdsBannerWidget(),
         ],
       ),
     );
   }
 
-  Widget _buildLargeProfileAvatar(bool isLight) {
-    return Container(
-      width: 48,
-      height: 48,
-      decoration: BoxDecoration(
-        color: isLight ? const Color(0xFFEFF6FF) : const Color(0xFF1E3A8A),
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: isLight ? const Color(0xFFBFDBFE) : const Color(0xFF3B82F6),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+  Widget _buildGradeCard(int grade, IconData icon, String subtitle, Color badgeColor, Color iconColor, bool isLight) {
+    return GestureDetector(
+      onTap: () {
+        GmsAndAdsService.showInterstitialAd(() {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Grade $grade courses coming soon!')),
+          );
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20.0),
+        decoration: BoxDecoration(
+          color: isLight ? Colors.white : const Color(0xFF1E293B),
+          borderRadius: BorderRadius.circular(24.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+          border: Border.all(
+            color: isLight ? const Color(0xFFF1F5F9) : const Color(0xFF334155),
+            width: 1,
           ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                color: isLight ? badgeColor : iconColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              child: Icon(icon, color: iconColor, size: 28),
+            ),
+            const SizedBox(height: 16.0),
+            Text(
+              "Grade $grade",
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 18.0,
+                fontWeight: FontWeight.w800,
+                color: isLight ? const Color(0xFF0F172A) : Colors.white,
+              ),
+            ),
+            const SizedBox(height: 4.0),
+            Text(
+              subtitle,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13.0,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF94A3B8),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileScreen(bool isLight) {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        children: [
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xFF1E88E5), width: 2),
+            ),
+            child: const CircleAvatar(
+              radius: 50,
+              backgroundColor: Color(0xFFE0F2FE),
+              child: Icon(Icons.person_rounded, size: 60, color: Color(0xFF1E88E5)),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "Student Name",
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: isLight ? const Color(0xFF1E293B) : Colors.white,
+            ),
+          ),
+          Text(
+            "student@smartxacademy.com",
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 14,
+              color: const Color(0xFF94A3B8),
+            ),
+          ),
+          const SizedBox(height: 32),
+          _buildProfileOption(Icons.edit_rounded, "Edit Profile", isLight),
+          _buildProfileOption(Icons.notifications_rounded, "Notifications", isLight),
+          _buildProfileOption(Icons.history_rounded, "Watch History", isLight),
+          _buildProfileOption(Icons.help_outline_rounded, "Help & Support", isLight),
+          _buildProfileOption(Icons.logout_rounded, "Logout", isLight, color: Colors.red),
         ],
       ),
-      alignment: Alignment.center,
-      child: Text(
-        "ST",
-        style: GoogleFonts.plusJakartaSans(
-          fontSize: 15,
-          fontWeight: FontWeight.w800,
-          color: isLight ? const Color(0xFF1E40AF) : const Color(0xFF93C5FD),
+    );
+  }
+
+  Widget _buildProfileOption(IconData icon, String title, bool isLight, {Color? color}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: isLight ? Colors.white : const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: isLight ? const Color(0xFFF1F5F9) : const Color(0xFF334155)),
+      ),
+      child: ListTile(
+        leading: Icon(icon, color: color ?? (isLight ? const Color(0xFF1E293B) : Colors.blue)),
+        title: Text(
+          title,
+          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: color),
         ),
+        trailing: const Icon(Icons.chevron_right_rounded),
       ),
     );
   }
