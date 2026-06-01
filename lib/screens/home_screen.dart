@@ -159,13 +159,6 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
   }
 
-  void _triggerAdAndExecute(VoidCallback action) {
-    // Show interstitial sponsor ad
-    GmsAndAdsService.showInterstitialAd(() {
-      action();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     bool isLight = !widget.isDarkMode;
@@ -424,9 +417,6 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildSubjectGrid(isLight),
 
           const SizedBox(height: 20.0),
-
-          // 6. GMS Sponsored banner placed at bottom of scrolling page
-          const SmartXAdsBannerWidget(),
         ],
       ),
     );
@@ -560,11 +550,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 // Play overlay element
                 GestureDetector(
                   onTap: () {
-                    _triggerAdAndExecute(() {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Course details coming soon!')),
-                      );
-                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Course details coming soon!')),
+                    );
                   },
                   child: Container(
                     padding: const EdgeInsets.all(12),
@@ -670,11 +658,9 @@ class _HomeScreenState extends State<HomeScreen> {
         final item = list[index];
         return GestureDetector(
           onTap: () {
-            _triggerAdAndExecute(() {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Course details coming soon!')),
-              );
-            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Course details coming soon!')),
+            );
           },
           child: Container(
             padding: const EdgeInsets.all(16.0),
@@ -1025,7 +1011,6 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 16),
               _buildModernStatusLine("GMS API status verified", GmsAndAdsService.isGmsAvailable ? "YES" : "NO", isLight),
               _buildModernStatusLine("Firebase cloud notifications", GmsAndAdsService.isFirebaseInitialized ? "Active & Healthy" : "Offline Mode", isLight),
-              _buildModernStatusLine("Preloaded Interstitial Ads", GmsAndAdsService.isInterstitialAdLoaded ? "System Ready" : "Standby/Offline", isLight),
               if (GmsAndAdsService.fcmToken != null) ...[
                 const SizedBox(height: 16),
                 Text(
