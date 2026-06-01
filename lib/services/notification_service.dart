@@ -7,11 +7,12 @@ class NotificationService {
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
+  FirebaseMessaging get _fcm => FirebaseMessaging.instance;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   Future<void> initialize() async {
-    // 1. Request Permissions
+    // Check if we already initialized or if in test environment (already guarded in main, but let's be safe)
+    if (Platform.environment.containsKey('FLUTTER_TEST')) return;
     NotificationSettings settings = await _fcm.requestPermission(
       alert: true,
       badge: true,

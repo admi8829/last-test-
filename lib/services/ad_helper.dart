@@ -82,6 +82,7 @@ class _SmartXBannerAdContainerState extends State<SmartXBannerAdContainer> {
   }
 
   void _loadAd() {
+    if (Platform.environment.containsKey('FLUTTER_TEST')) return;
     _bannerAd = BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,
       request: const AdRequest(),

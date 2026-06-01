@@ -192,6 +192,13 @@ class _SmartXAdsBannerWidgetState extends State<SmartXAdsBannerWidget> {
   }
 
   void _loadAd() {
+    if (Platform.environment.containsKey('FLUTTER_TEST')) {
+      setState(() {
+        _failed = true;
+      });
+      return;
+    }
+
     // If GMS is not available, or AdMob has not successfully initialized,
     // do not attempt to load standard AdMob to avoid core crashes or errors.
     if (!GmsAndAdsService.isGmsAvailable || !GmsAndAdsService.isAdMobInitialized) {
