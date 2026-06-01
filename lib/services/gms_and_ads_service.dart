@@ -12,6 +12,8 @@ class GmsAndAdsService {
   static bool isAdMobInitialized = false;
   static String? fcmToken;
   static String? statusMessage;
+  static InterstitialAd? _interstitialAd;
+  static bool isInterstitialAdLoaded = false;
 
   /// Starts asynchronous background initialization of GMS, Firebase and AdMob.
   /// This ensures absolutely zero startup lag or UI freezes.
@@ -76,11 +78,81 @@ class GmsAndAdsService {
         print("AdMob successfully initialized.");
       }
       statusMessage = "All systems operational (GMS Active).";
+      
+      // Load an initial Interstitial Ad
+      loadInterstitialAd();
     } catch (e) {
       statusMessage = "AdMob error: $e";
       if (kDebugMode) {
         print("Failed to initialize AdMob: $e");
       }
+    }
+  }
+
+  /// Preload an official Google AdMob test interstitial ad
+  static void loadInterstitialAd() {
+    if (!isGmsAvailable || !isAdMobInitialized) return;
+
+    try {
+      InterstitialAd.load(
+        adUnitId: 'ca-app-pub-3940256099942544/1033173712', // Official AdMob Test Interstitial ID
+        request: const AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (ad) {
+            _interstitialAd = ad;
+            isInterstitialAdLoaded = true;
+            if (kDebugMode) {
+              print('AdMob Interstitial Ad loaded successfully.');
+            }
+          },
+          onAdFailedToLoad: (error) {
+            isInterstitialAdLoaded = false;
+            _interstitialAd = null;
+            if (kDebugMode) {
+              print('AdMob Interstitial Ad failed to load: $error');
+            }
+          },
+        ),
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print("Exception loading interstitial: $e");
+      }
+    }
+  }
+
+  /// Show the preloaded interstitial ad or call the onDismissed callback if not loaded
+  static void showInterstitialAd(VoidCallback onDismissed) {
+    if (isInterstitialAdLoaded && _interstitialAd != null) {
+      try {
+        _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+          onAdDismissedFullScreenContent: (ad) {
+            ad.dispose();
+            isInterstitialAdLoaded = false;
+            _interstitialAd = null;
+            onDismissed();
+            loadInterstitialAd(); // Reload for next time
+          },
+          onAdFailedToShowFullScreenContent: (ad, error) {
+            ad.dispose();
+            isInterstitialAdLoaded = false;
+            _interstitialAd = null;
+            onDismissed();
+            loadInterstitialAd(); // Reload for next time
+          },
+        );
+        _interstitialAd!.show();
+      } catch (e) {
+        if (kDebugMode) {
+          print("Exception showing interstitial: $e");
+        }
+        onDismissed();
+      }
+    } else {
+      if (kDebugMode) {
+        print('Interstitial ad was not loaded. Executing callback directly.');
+      }
+      onDismissed();
     }
   }
 
