@@ -263,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 8.0),
       color: Colors.transparent,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.between,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             "12:41",
@@ -350,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           // 1. Beautiful Header Greeting Row matching screenshot
           Row(
-            mainAxisAlignment: MainAxisAlignment.between,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 child: Column(
@@ -396,7 +396,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // 4. Section Syllabus Header
           Row(
-            mainAxisAlignment: MainAxisAlignment.between,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 _local('explore_title'),
@@ -536,7 +536,7 @@ class _HomeScreenState extends State<HomeScreen> {
           width: 1,
         ),
       ),
-      overflow: BoxTheme.of(context).brightness == Brightness.dark ? Clip.antiAlias : Clip.none,
+      clipBehavior: Theme.of(context).brightness == Brightness.dark ? Clip.antiAlias : Clip.none,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20.0),
         child: Column(
@@ -562,14 +562,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 GestureDetector(
                   onTap: () {
                     _triggerAdAndExecute(() {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => GradeCoursesPage(
-                            grade: _selectedGrade,
-                            isDarkMode: widget.isDarkMode,
-                          ),
-                        ),
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Course details coming soon!')),
                       );
                     });
                   },
@@ -678,14 +672,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return GestureDetector(
           onTap: () {
             _triggerAdAndExecute(() {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => GradeCoursesPage(
-                    grade: _selectedGrade,
-                    isDarkMode: widget.isDarkMode,
-                  ),
-                ),
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Course details coming soon!')),
               );
             });
           },
@@ -822,7 +810,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 24),
           _buildEnhancedCourseTile("Mathematics syllabus master", "Grades 9-12 full curriculum", "4.9 ★ (320 ratings)", "120 Chapters", Colors.purple, isLight),
           _buildEnhancedCourseTile("General Physics course", "Mechanics up to nuclear studies", "4.8 ★ (180 ratings)", "105 Chapters", Colors.amber, isLight),
-          _buildEnhancedCourseTile("Standard Biology complete guide", "Cell physiology up to ecology study", "4.7 ★ (210 ratings)", "98 Chapters", Colors.emerald, isLight),
+          _buildEnhancedCourseTile("Standard Biology complete guide", "Cell physiology up to ecology study", "4.7 ★ (210 ratings)", "98 Chapters", const Color(0xFF10B981), isLight),
           _buildEnhancedCourseTile("Inorganic & Organic Chemistry", "Elements synthesis, rates & reactions", "4.8 ★ (150 ratings)", "112 Chapters", Colors.teal, isLight),
         ],
       ),
@@ -1077,7 +1065,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.between,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
