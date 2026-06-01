@@ -563,8 +563,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () {
         GmsAndAdsService.showInterstitialAd(() {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Grade $grade courses coming soon!')),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GradeCoursesScreen(grade: grade),
+            ),
           );
         });
       },

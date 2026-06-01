@@ -32,107 +32,127 @@ class NotificationService {
   );
 
   Future<void> initialize() async {
-    // Check if we already initialized or if in test environment (already guarded in main, but let's be safe)
+    // Check if we already initialized or if in test environment
     if (Platform.environment.containsKey('FLUTTER_TEST')) return;
 
-    // 1. Initialize Local Notifications for Foreground
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-    
-    // For iOS, these are basic permissions
-    const DarwinInitializationSettings initializationSettingsDarwin = DarwinInitializationSettings();
+    try {
+      // 0. Ensure Firebase is initialized
+      if (Firebase.apps.isEmpty) {
+        if (kDebugMode) print("NotificationService: Firebase not initialized. Skipping.");
+        return;
+      }
 
-    const InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsDarwin,
-    );
+      try {
+      // 1. Initialize Local Notifications for Foreground
+      const AndroidInitializationSettings initializationSettingsAndroid =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
+      
+      // For iOS, these are basic permissions
+      const DarwinInitializationSettings initializationSettingsDarwin = DarwinInitializationSettings();
 
-    await _localNotifications.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse response) {
-        // Handle local notification click
-        if (response.payload != null) {
-          if (kDebugMode) print("Local notification payload: ${response.payload}");
-        }
-      },
-    );
+      const InitializationSettings initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid,
+        iOS: initializationSettingsDarwin,
+      );
 
-    // Create the channel on Android
-    await _localNotifications
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
+      await _localNotifications.initialize(
+        initializationSettings,
+        onDidReceiveNotificationResponse: (NotificationResponse response) {
+          // Handle local notification click
+          if (response.payload != null) {
+            if (kDebugMode) print("Local notification payload: ${response.payload}");
+          }
+        },
+      );
 
-    // 2. Request Permissions
-    NotificationSettings settings = await _fcm.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+      // Create the channel on Android
+      if (Platform.isAndroid) {
+        await _localNotifications
+            .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+            ?.createNotificationChannel(channel);
+      }
 
-    if (kDebugMode) {
-      print('User granted permission: ${settings.authorizationStatus}');
-    }
-
-    // 2. Get Token
-    String? token = await _fcm.getToken();
-    if (kDebugMode) {
-      print("========= FCM TOKEN =========");
-      print(token);
-      print("=============================");
-    }
-
-    // 3. Handle Foreground Messages
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
+      // 2. Request Permissions
+      NotificationSettings settings = await _fcm.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 
       if (kDebugMode) {
-        print('Got a message whilst in the foreground!');
-        print('Message data: ${message.data}');
+        print('User granted permission: ${settings.authorizationStatus}');
       }
 
-      // If notification exists, show it using local notifications
-      if (notification != null && !Platform.environment.containsKey('FLUTTER_TEST')) {
-        _localNotifications.show(
-          notification.hashCode,
-          notification.title,
-          notification.body,
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              channel.id,
-              channel.name,
-              channelDescription: channel.description,
-              icon: android?.smallIcon ?? '@mipmap/ic_launcher',
-              importance: Importance.max,
-              priority: Priority.high,
-            ),
-            iOS: const DarwinNotificationDetails(
-              presentAlert: true,
-              presentBadge: true,
-              presentSound: true,
-            ),
-          ),
-          payload: message.data.toString(),
-        );
+      // 3. Get Token
+      // FCM token might fail on non-GMS devices or if setup is incorrect
+      try {
+        String? token = await _fcm.getToken();
+        if (kDebugMode) {
+          print("========= FCM TOKEN =========");
+          print(token);
+          print("=============================");
+        }
+      } catch (e) {
+        if (kDebugMode) print("FCM Token Error: $token");
+      }
+
+      // 4. Handle Foreground Messages
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        RemoteNotification? notification = message.notification;
+        AndroidNotification? android = message.notification?.android;
 
         if (kDebugMode) {
-          print('Message also contained a notification: ${notification.title}');
+          print('Got a message whilst in the foreground!');
+          print('Message data: ${message.data}');
         }
+
+        // If notification exists, show it using local notifications
+        if (notification != null && !Platform.environment.containsKey('FLUTTER_TEST')) {
+          _localNotifications.show(
+            notification.hashCode,
+            notification.title,
+            notification.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                channel.id,
+                channel.name,
+                channelDescription: channel.description,
+                icon: android?.smallIcon ?? '@mipmap/ic_launcher',
+                importance: Importance.max,
+                priority: Priority.high,
+              ),
+              iOS: const DarwinNotificationDetails(
+                presentAlert: true,
+                presentBadge: true,
+                presentSound: true,
+              ),
+            ),
+            payload: message.data.toString(),
+          );
+
+          if (kDebugMode) {
+            print('Message also contained a notification: ${notification.title}');
+          }
+        }
+      });
+
+      // Handle background messages via the top-level handler
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+      // 5. Handle Notification Click (when app is in background but opened via notification)
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        _handleNotificationClick(message);
+      });
+
+      // 6. Handle Notification Click (when app was terminated and opened via notification)
+      RemoteMessage? initialMessage = await _fcm.getInitialMessage();
+      if (initialMessage != null) {
+        _handleNotificationClick(initialMessage);
       }
-    });
-
-    // Handle background messages via the top-level handler
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-
-    // 4. Handle Notification Click (when app is in background but opened via notification)
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      _handleNotificationClick(message);
-    });
-
-    // 5. Handle Notification Click (when app was terminated and opened via notification)
-    RemoteMessage? initialMessage = await _fcm.getInitialMessage();
-    if (initialMessage != null) {
-      _handleNotificationClick(initialMessage);
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error initializing NotificationService: $e");
+      }
     }
   }
 
