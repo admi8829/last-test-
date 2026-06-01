@@ -8,12 +8,7 @@ import 'package:google_api_availability/google_api_availability.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // If you're going to use other Firebase services in the background, such as Firestore,
-  // make sure you call `initializeApp` before using other Firebase services.
-  await Firebase.initializeApp(options: GmsAndAdsService.currentFirebaseOptions);
-  if (kDebugMode) {
-    print("Handling a background message: ${message.messageId}");
-  }
+  // Redundant - moved to NotificationService
 }
 
 class GmsAndAdsService {
@@ -61,10 +56,6 @@ class GmsAndAdsService {
         await Firebase.initializeApp(options: currentFirebaseOptions);
       }
       isFirebaseInitialized = true;
-      
-      // Background message handler is explicitly set in initializeAll in NotificationService or main
-      // But keeping it here for core stability if called independently
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     } catch (e) {
       if (kDebugMode) print("Firebase Error: $e");
       statusMessage = "Firebase error: $e";
