@@ -88,7 +88,6 @@ class GmsAndAdsService {
         }
       }
     }
-  }
 
   /// Preload an official Google AdMob test interstitial ad
   static void loadInterstitialAd() {
