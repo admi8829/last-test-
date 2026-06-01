@@ -23,6 +23,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  int _selectedGrade = 9;
   YoutubePlayerController? _ytController;
 
   @override
@@ -884,6 +885,30 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildLargeProfileAvatar(bool isLight) {
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: isLight ? const Color(0xFFEFF6FF) : const Color(0xFF1E3A8A),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: isLight ? const Color(0xFFBFDBFE) : const Color(0xFF3B82F6),
+          width: 1.5,
+        ),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        "ST",
+        style: GoogleFonts.plusJakartaSans(
+          fontSize: 15,
+          fontWeight: FontWeight.w800,
+          color: isLight ? const Color(0xFF1E40AF) : const Color(0xFF93C5FD),
+        ),
+      ),
     );
   }
 
