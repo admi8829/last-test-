@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../services/gms_and_ads_service.dart';
+import 'grade_courses_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final bool isDarkMode;
@@ -696,6 +697,13 @@ class _HomeScreenState extends State<HomeScreen> {
               setState(() {
                 _selectedGrade = gradeNum;
               });
+              // Navigate to the grade courses screen as per the new design request
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GradeCoursesScreen(grade: gradeNum),
+                ),
+              );
             },
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 5.0),
