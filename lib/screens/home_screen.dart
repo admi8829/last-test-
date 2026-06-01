@@ -367,107 +367,192 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHomeScreenContent(bool isLight) {
+    final featured = _getFeaturedModule();
+    
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(20.0, 8.0, 20.0, 24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Video Tutorial Card
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: isLight ? Colors.white : const Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(24.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 16.0,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-              border: Border.all(
-                color: isLight ? const Color(0xFFF1F5F9) : const Color(0xFF334155),
-                width: 1,
-              ),
-            ),
+          // Elegant Mock Status Bar
+          _buildMockStatusBar(isLight),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 32.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24.0)),
-                  child: _ytController != null
-                      ? YoutubePlayer(
-                          controller: _ytController!,
-                          showVideoProgressIndicator: true,
-                          progressIndicatorColor: const Color(0xFF1E88E5),
-                        )
-                      : Container(
-                          height: 200,
-                          color: isLight ? Colors.grey[200] : Colors.grey[800],
-                          child: Center(
-                            child: Icon(Icons.play_disabled_rounded,
-                                color: isLight ? Colors.grey : Colors.white),
+                // Modern Greeting Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Welcome Back,",
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF94A3B8),
                           ),
                         ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    "Watch tutorial: Getting started with the Smart X Academy App.",
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.w600,
-                      color: isLight ? const Color(0xFF475569) : Colors.grey[400],
+                        Text(
+                          "Smart Student!",
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: isLight ? const Color(0xFF0F172A) : Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
+                    _buildLargeProfileAvatar(isLight),
+                  ],
+                ),
+
+                const SizedBox(height: 28),
+
+                // Grade Selector Section
+                Text(
+                  _local('explore_title'),
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.w800,
+                    color: isLight ? const Color(0xFF0F172A) : Colors.white,
                   ),
                 ),
+                const SizedBox(height: 14),
+                _buildGradeSelectorChips(isLight),
+
+                const SizedBox(height: 32),
+
+                // Featured Interactive Module
+                Text(
+                  "Recommended for You",
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.w800,
+                    color: isLight ? const Color(0xFF0F172A) : Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _buildFeaturedInteractiveCard(isLight, featured),
+
+                const SizedBox(height: 36),
+
+                // Subject Grid Section
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Grade $_selectedGrade Syllabus",
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w800,
+                        color: isLight ? const Color(0xFF0F172A) : Colors.white,
+                      ),
+                    ),
+                    Text(
+                      "View All",
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13.0,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF1E88E5),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildSubjectGrid(isLight),
+
+                const SizedBox(height: 48),
+
+                // Integrated About Section
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: isLight ? const Color(0xFFF8FAFC) : const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(28),
+                    border: Border.all(
+                      color: isLight ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E88E5).withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.auto_awesome, color: Color(0xFF1E88E5), size: 28),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        "Master Your Journey",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: isLight ? const Color(0xFF0F172A) : Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        "Smart X Academy provides the most comprehensive digital syllabus for Ethiopian students. Access expert-led tutorials and track your progress to success.",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13.5,
+                          height: 1.6,
+                          color: const Color(0xFF64748B),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            // Indirectly "using" about screen logic by navigating or showing modal
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (context) => Container(
+                                height: MediaQuery.of(context).size.height * 0.7,
+                                decoration: BoxDecoration(
+                                  color: isLight ? Colors.white : const Color(0xFF0F172A),
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                                ),
+                                child: _buildAboutScreen(isLight),
+                              ),
+                            );
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1E88E5),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(Platform.isIOS ? 12 : 16),
+                          ),
+                        ),
+                        child: Text(
+                          "Learn More About Us",
+                          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+                const SmartXAdsBannerWidget(),
               ],
             ),
           ),
-
-          const SizedBox(height: 32.0),
-
-          // Explore Your Grade Section
-          Text(
-            _local('explore_title'),
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 24.0,
-              fontWeight: FontWeight.w800,
-              color: isLight ? const Color(0xFF0F172A) : Colors.white,
-            ),
-          ),
-          const SizedBox(height: 4.0),
-          Text(
-            _local('explore_sub'),
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 16.0,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFF94A3B8),
-            ),
-          ),
-
-          const SizedBox(height: 24.0),
-
-          // Grade Selection Grid
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            crossAxisSpacing: 16.0,
-            mainAxisSpacing: 16.0,
-            childAspectRatio: 0.9,
-            children: [
-              _buildGradeCard(9, Icons.library_books_rounded, "Begin your journey!", const Color(0xFFE0F2FE), const Color(0xFF0284C7), isLight),
-              _buildGradeCard(10, Icons.science_rounded, "Expand your knowledge!", const Color(0xFFE0F8F5), const Color(0xFF0D9488), isLight),
-              _buildGradeCard(11, Icons.calculate_rounded, "Prepare for excellence!", const Color(0xFFFEF3C7), const Color(0xFFD97706), isLight),
-              _buildGradeCard(12, Icons.school_rounded, "Achieve your goals!", const Color(0xFFF3E8FF), const Color(0xFF9333EA), isLight),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-          // Sponsor banner at bottom
-          const SmartXAdsBannerWidget(),
         ],
       ),
     );
