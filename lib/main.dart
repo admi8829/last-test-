@@ -2,7 +2,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/home_screen.dart';
+import 'screens/splash_screen.dart';
 import 'services/gms_and_ads_service.dart';
 import 'services/notification_service.dart';
 
@@ -92,7 +92,7 @@ class _SmartXAcademyAppState extends State<SmartXAcademyApp> {
       ),
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
       
-      home: HomeScreen(
+      home: SplashScreen(
         isDarkMode: _isDarkMode,
         languageCode: _languageCode,
         onToggleTheme: toggleTheme,
