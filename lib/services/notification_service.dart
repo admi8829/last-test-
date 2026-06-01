@@ -59,7 +59,7 @@ class NotificationService {
 
     // Create the channel on Android
     await _localNotifications
-        .resolvePlatformSpecificAction<AndroidFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
     // 2. Request Permissions
